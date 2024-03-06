@@ -3,23 +3,24 @@
 import sys
 from scapy.all import *
 from scapy.layers.http import *
+from scapy.layers.tls.all import *
+
+load_layer('tls')
 
 
+# pyopenssl 22.1.0
+# cryptography 38.0.4
 
 def process_packet(p):
     if p.haslayer(HTTPRequest):
         http = p[HTTPRequest]
-        # print(p[HTTPRequest])
-
-        # Extracting method, destination host, and request URI
-        method = http.getfieldval('Method').decode()
-        host = http.getfieldval('Host').decode()
+        method = http.Method.decode()
+        host = http.Host.decode()
         path = http.Path.decode()
 
-        # Printing the results
         print(f"Method 1: {method}\nDestination Host: {host}\nRequest URI: {path}\n")
-    if p.haslayer("SSL/TLS"):
-        print(p.getlayer("SSL/TLS"))
+    if p.haslayer(TLS):
+        print(p[TLS].mysummary())
     # print(p)
 
 
