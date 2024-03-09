@@ -44,7 +44,7 @@ def process_packet(p):
                 0x0304: "TLS v1.3"
             }
             if p.haslayer(TLS) and p[TLS].type == 22 and p[TLS].msg[0].msgtype == 1:
-                print(p[TLS].show())
+                # print(p[TLS].show())
                 tls_version = p[TLS].msg[0].version
                 version_name = tls_version_mapping.get(tls_version, "TLS Unknown Version")
                 if TLS_Ext_ServerName in p:
@@ -61,6 +61,14 @@ def main():
     trace_file = None
     expression = None
     i = 1
+    usage = ("""Usage: mysniffer.py [-i interface] [-r tracefile] expression
+               -i  Live capture from the network device <interface> (e.g., eth0). If not
+                   specified, the program should automatically select a default interface to
+                   listen on. Capture should continue indefinitely until the user terminates
+                   the program.
+
+               -r  Read packets from <tracefile> (tcpdump format). Useful for analyzing
+                   network traces that have been captured previously.""")
 
     while i < len(sys.argv):
         if sys.argv[i] == "-r" and i + 1 < len(sys.argv):
@@ -77,19 +85,12 @@ def main():
 
     # Choose the appropriate source
     if trace_file:
-        packets = sniff(offline=trace_file, filter=expression, prn=process_packet)
+        sniff(offline=trace_file, filter=expression, prn=process_packet)
     elif interface:
         # sudo ./mysniffer.py -i eth0
-        packets = sniff(iface=interface, filter=expression, prn=process_packet)
+        sniff(iface=interface, filter=expression, prn=process_packet)
     else:
-        print("""Usage: mysniffer.py [-i interface] [-r tracefile] expression
-               -i  Live capture from the network device <interface> (e.g., eth0). If not
-                   specified, the program should automatically select a default interface to
-                   listen on. Capture should continue indefinitely until the user terminates
-                   the program.
-
-               -r  Read packets from <tracefile> (tcpdump format). Useful for analyzing
-                   network traces that have been captured previously.""")
+        print(usage)
         sys.exit(1)
 
 
