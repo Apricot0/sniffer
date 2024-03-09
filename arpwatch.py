@@ -35,6 +35,7 @@ def process_packet(p):
     if p.haslayer(ARP):
         # if (p[ARP].op == 2):
         #     print(p[ARP].summary)
+            print(p[ARP].summary())
             ip = p[ARP].psrc
             mac = p[ARP].hwsrc
             # print(arp_cache)
@@ -46,7 +47,8 @@ def process_packet(p):
 def main():
     global arp_cache
     interface = "eth0"
-    trace_file = "hw1.pcap"
+    trace_file = None
+    # trace_file = "hw1.pcap"
     expression = None
     i = 1
     usage = """Usage: arpwatch.py [-i interface] 
@@ -66,12 +68,8 @@ def main():
             continue
         else:
             print(usage)
-    # print(get_current_arp_cache())
     arp_cache = get_current_arp_cache()
-    # arp_cache['192.168.0.1'] = 'c4:3d:c7:17:6f:98'
-    # arp_cache['192.168.0.200'] = 'c4:3d:c7:17:6f:98'
-    # arp_cache['86.0.33.20'] = 'c4:3d:c7:17:6f:96'
-    # print(arp_cache)
+    print("ARP Cache: ", arp_cache)
     if trace_file:
         sniff(offline=trace_file, filter=expression, prn=process_packet)
     elif interface:
