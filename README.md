@@ -1,12 +1,14 @@
 # Network Monitoring with Scapy
 
 ## File Structure:
-
+```
 |--arpwatch.py
 |--mysniffer.py
 |--README.md
 |--http_tls_demo.pcap
 |--requirements.txt
+```
+
 
 ## Overview
 There are two Python script applications included in this simple suite. One is `mysniffer.py`, used to sniff TLS and HTTP
@@ -32,18 +34,19 @@ For both HTTP and TLS, it also prints a timestamp and the source and
 destination IP addresses and ports.
 
 ### Usage
+```
 Usage: mysniffer.py [-i interface] [-r tracefile] expression
       -i Live capture from the network device <interface> (e.g., eth0). If not
       specified, the program should automatically select a default interface to
       listen on. Capture should continue indefinitely until the user terminates
       the program.
-
       -r  Read packets from <tracefile> (tcpdump format). Useful for analyzing
       network traces that have been captured previously.
 
 The optional <expression> argument is a BPF filter that specifies a subset of the traffic to be monitored (similar to
 tcpdump). The application will ignore all the arguments before it detects the -i or -r options. Furthermore, only one
 mode can be chosen at a time.
+```
 
 ### Example
 The following example reads the http_tls_demo.pcap provided in the folder.
@@ -118,6 +121,7 @@ passively monitor the ARP traffic and print a warning message whenever an
 existing MAC-IP binding changes.
 
 ## Usage
+```
 Usage: arpwatch.py [-i interface] 
 -i  Live capture from the network device <interface> (e.g., eth0). If not
     specified, the program will automatically select a default interface to
@@ -125,7 +129,7 @@ Usage: arpwatch.py [-i interface]
     the program.
 
 The application will ignore all arguments until it detects the -i option.
-
+```
 ### Example
 In order to simulate arpspoof, two kali vms are set up under VMware envriment named kali-1 and kali-2. kali-2 will be
 the victim.
