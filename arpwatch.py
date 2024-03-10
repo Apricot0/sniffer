@@ -3,6 +3,8 @@ from scapy.all import *
 from scapy.layers.l2 import *
 
 arp_cache = {}
+arp_debug = False
+
 
 # pyopenssl 22.1.0
 # cryptography 38.0.4
@@ -16,7 +18,6 @@ def get_current_arp_cache():
         print("Error: 'arp' command error.")
         exit(1)
 
-    # Parse ARP cache entries and create a dictionary
     arp_cache_temp = {}
     entry_pattern = re.compile(r'\((\d+\.\d+\.\d+\.\d+)\) at ([0-9a-fA-F:]+) \[ether\]')
 
@@ -33,50 +34,59 @@ def get_current_arp_cache():
 
 def process_packet(p):
     if p.haslayer(ARP):
-        # if (p[ARP].op == 2):
-        #     print(p[ARP].summary)
+        if debug:
             print(p[ARP].summary())
-            ip = p[ARP].psrc
-            mac = p[ARP].hwsrc
-            # print(arp_cache)
-            if ip in arp_cache:
-                if arp_cache[ip] != mac:
-                    print(f"{ip} changed from {arp_cache[ip]} to {mac}")
+        ip = p[ARP].psrc
+        mac = p[ARP].hwsrc
+        # print(arp_cache)
+        if ip in arp_cache:
+            if arp_cache[ip] != mac:
+                print(f"{ip} changed from {arp_cache[ip]} to {mac}")
 
 
 def main():
     global arp_cache
-    interface = "eth0"
-    trace_file = None
-    # trace_file = "hw1.pcap"
-    expression = None
+    global arp_debug
+    interface = None
     i = 1
+    legal_arg = False
     usage = """Usage: arpwatch.py [-i interface] 
-                -i  Live capture from the network device <interface> (e.g., eth0). If not
-                    specified, the program should automatically select a default interface to
-                    listen on. Capture should continue indefinitely until the user terminates
-                    the program."""
-
-    while i < len(sys.argv):
-        if sys.argv[i] == "-r" and i + 1 < len(sys.argv):
-            trace_file = sys.argv[i + 1]
-            i += 2
-            continue
-        elif sys.argv[i] == "-i" and i + 1 < len(sys.argv):
-            interface = sys.argv[i + 1]
-            i += 2
-            continue
-        else:
-            print(usage)
-    arp_cache = get_current_arp_cache()
-    print("ARP Cache: ", arp_cache)
-    if trace_file:
-        sniff(offline=trace_file, filter=expression, prn=process_packet)
-    elif interface:
-        sniff(iface=interface, filter=expression, prn=process_packet)
-    else:
+-i  Live capture from the network device <interface> (e.g., eth0). If not
+    specified, the program will automatically select a default interface to
+    listen on. Capture will continue indefinitely until the user terminates
+    the program."""
+    if len(sys.argv) == 1:
         print(usage)
         sys.exit(1)
+    while i < len(sys.argv):
+        if sys.argv[i] == "-i":
+            legal_arg = True
+            if i + 1 < len(sys.argv):
+                interface = sys.argv[i + 1]
+                i += 2
+                continue
+        elif sys.argv[i] == "-d":
+            arp_debug = True
+        i += 1
+    if legal_arg:
+        arp_cache = get_current_arp_cache()
+        print("ARP Cache: ", arp_cache, "\nWatching ARP Traffic...")
+        try:
+            if interface:
+                sniff(iface=interface, prn=process_packet)
+            else:
+                sniff(prn=process_packet)
+        except PermissionError:
+            print("PermissionError: You may not have sufficient permissions to sniff on the specified interface."
+                  "\nDo you mean sudo?")
+        except OSError as e:
+            if "No such device" in str(e):
+                print(f"Error: {e}. Please check if the specified interface '{interface}' exists.")
+            else:
+                raise
+    else:
+        print(usage)
+    sys.exit(0)
 
 
 if __name__ == "__main__":
