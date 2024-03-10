@@ -16,8 +16,7 @@ traffic, and the other is `arpwatch.py`, used to monitor ARP changes to detect a
 based on the Scapy network traffic capture/analysis/generation framework.
 
 ## Environment
-Run `pip install -r requirements.txt` to install the required dependencies.
-Preferable OS is 64-bit Kali Linux.
+Run `pip install -r requirements.txt` to install the required dependencies. The preferred operating system is 64-bit Kali Linux. Execute `chmod +x mysniffer.py` and `chmod +x arpwatch.py` to ensure they are executable. Otherwise, prepend `python3` to the front.
 
 ## mysniffer.py
 ### Introduction
