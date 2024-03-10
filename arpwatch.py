@@ -34,7 +34,7 @@ def get_current_arp_cache():
 
 def process_packet(p):
     if p.haslayer(ARP):
-        if debug:
+        if arp_debug:
             print(p[ARP].summary())
         ip = p[ARP].psrc
         mac = p[ARP].hwsrc
